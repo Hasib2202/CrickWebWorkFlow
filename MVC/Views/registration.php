@@ -1,3 +1,16 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+// if (isset($_GET['error'])) {
+//     echo '<script>alert("' . htmlspecialchars($_GET['error']) . '");</script>';
+// }
+?>
+<?php
+// if (isset($_GET['error'])) {
+//     echo "<p style='color: red;'>" . htmlspecialchars($_GET['error']) . "</p>";
+// }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,12 +22,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../login/css/style.css">
     <style>
-        .error-message {
+        /* .error-message {
             color: #ff4c4c;
             margin-top: 5px;
             font-size: 14px;
             display: none;
+
+        } */
+
+        .message {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 10px;
         }
+
+        .error-message {
+            color: #ff4c4c;
+        }
+
+        .success-message {
+            color: #28a745;
+        }
+
 
         .form-group input,
         .form-group select {
@@ -49,10 +78,9 @@
         .submit:hover {
             background-color: #0056b3;
         }
-
-       
     </style>
     <script src="../js/registrationValidation.js" defer></script>
+
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
         rel="stylesheet" />
@@ -114,11 +142,7 @@
 </header>
 
 <body class="img js-fullheight" style="background-image: url('../../login/images/bg.jpg');">
-    <?php
-    if (isset($_GET['error'])) {
-        echo '<script>alert("' . htmlspecialchars($_GET['error']) . '");</script>';
-    }
-    ?>
+
 
     <section class="ftco-section">
         <div class="container">
@@ -137,7 +161,7 @@
                                 <div class="error-message" id="nameError"></div>
                             </div>
                             <div class="form-group">
-                                <input type="email" id="email" name="email" class="form-control" placeholder="Email">
+                                <input type="email" id="email" name="email" class="form-control " placeholder="Email">
                                 <div class="error-message" id="emailError"></div>
                             </div>
                             <div class="form-group">
@@ -157,6 +181,13 @@
                             <div class="form-group">
                                 <button type="submit" class="form-control btn btn-primary submit px-3">Register</button>
                             </div>
+                            <!-- Error/Success Message -->
+                            <?php if (isset($_GET['error'])): ?>
+                                <div class="message error-message"><?= htmlspecialchars($_GET['error']); ?></div>
+                            <?php endif; ?>
+                            <?php if (isset($_GET['success'])): ?>
+                                <div class="message success-message"><?= htmlspecialchars($_GET['success']); ?></div>
+                            <?php endif; ?>
                         </div>
                         <div class="text-center mt-4">
                             <a href="login.php" class="text-white" style="text-decoration: none;">
@@ -168,6 +199,22 @@
             </form>
         </div>
     </section>
+
+    <script>
+        // Update your existing sidebar toggle script
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const button = this;
+
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+
+            // Optional: Rotate icon when sidebar is toggled
+            const icon = button.querySelector('i');
+            icon.style.transform = sidebar.classList.contains('collapsed') ? 'rotate(180deg)' : '';
+        });
+    </script>
 
     <script src="../../login/js/jquery.min.js"></script>
     <script src="../../login/js/popper.js"></script>

@@ -1,13 +1,14 @@
 <?php
+
 require_once 'db.php';
 
 class UserModel
 {
-
+    
     public function registerUser($name, $email, $password, $role)
     {
         // Get database connection
-        $connection = getConnection();
+        $connection = $this->db;
 
         // Check if email already exists using prepared statements to avoid SQL injection
         $checkQuery = "SELECT * FROM users WHERE email = ?";
@@ -57,21 +58,54 @@ class UserModel
     }
 
     // Login the user
+    private $db;
+
+    public function __construct()
+    {
+        $this->db = getConnection();
+    }
+
     public function loginUser($email, $password)
     {
-        // Get database connection
-        $connection = getConnection();
+        try {
+            $query = "SELECT * FROM users WHERE email = ?";
+            $stmt = mysqli_prepare($this->db, $query);
+            mysqli_stmt_bind_param($stmt, "s", $email);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $user = mysqli_fetch_assoc($result);
 
-        // Fetch user by email
-        $query = "SELECT * FROM users WHERE email = '$email'";
-        $result = mysqli_query($connection, $query);
-        $user = mysqli_fetch_assoc($result);
-
-        // Check if the user exists and the password matches
-        if ($user && password_verify($password, $user['password'])) {
-            return $user; // User authenticated
+            if ($user && password_verify($password, $user['password'])) {
+                return $user;
+            }
+            return false;
+        } catch (Exception $e) {
+            error_log("Login error: " . $e->getMessage());
+            return false;
         }
+    }
 
-        return false; // Authentication failed
+    public function getUserRoles($userId)
+    {
+        try {
+            $query = "SELECT r.name FROM roles r
+                     INNER JOIN user_roles ur ON ur.role_id = r.id
+                     WHERE ur.user_id = ?";
+            $stmt = mysqli_prepare($this->db, $query);
+            mysqli_stmt_bind_param($stmt, "i", $userId);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+
+            $roles = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $roles[] = $row['name'];
+            }
+            return $roles;
+        } catch (Exception $e) {
+            error_log("Get user roles error: " . $e->getMessage());
+            return [];
+        }
     }
 }
+
+?>
